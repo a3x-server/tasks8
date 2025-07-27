@@ -1,8 +1,8 @@
 'use client'
-import { OrbitronBlackFont } from '../services/fonts/fonts.js'
-import BoxInput from '../componentes/box-input.jsx'
-import ToggleTheme from '../componentes/toggle-theme.jsx'
-import Footer from '../componentes/footer.jsx'
+import { OrbitronBlackFont } from '../services/fonts/fonts.ts'
+import BoxInput from '../componentes/box-input.tsx'
+import ToggleTheme from '../componentes/toggle-theme.tsx'
+import Footer from '../componentes/footer.tsx'
 import { Toaster } from 'sonner'
 
 const Page = () => {

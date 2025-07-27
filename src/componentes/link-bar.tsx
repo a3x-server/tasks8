@@ -1,6 +1,6 @@
 'use client'
 import { GlobeIcon, YouTubeIcon, GitHubIcon } from '../services/iconos.js'
-import Link from 'next/link.js'
+import Link from 'next/link'
 
 export default function LinkBar() {
 	return (
