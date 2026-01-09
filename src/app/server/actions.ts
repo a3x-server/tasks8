@@ -1,12 +1,14 @@
 "use server";
-import { Buffer } from "node:buffer";
-import prisma from "../../db/db.prisma.ts";
-import path from "node:path";
-import { revalidatePath } from "next/cache";
+
+import { NextApiRequest, NextApiResponse } from "next";
 import { existsSync, mkdirSync } from "node:fs";
+
+import { Buffer } from "node:buffer";
+import path from "node:path";
+import prisma from "../../db/db.prisma.ts";
+import { revalidatePath } from "next/cache";
 import { upImages } from "../../services/firebase.config.js";
 import { writeFile } from "fs/promises";
-import { NextApiRequest, NextApiResponse } from "next";
 
 //TODO: Seguridad en las Cookies
 
@@ -22,8 +24,8 @@ interface Task {
   id?: number;
   concept?: string;
   amount?: number;
-  debit?: string;
-  img?: string | URL;
+  debit?: boolean;
+  img?: string | URL | null;
   notes?: string;
   initAt?: string;
   completed?: boolean;
@@ -32,7 +34,7 @@ interface Task {
 //! Tasks
 
 export async function GetTasks() {
-  const _getAllTasks = await prisma.Tasks.findMany({
+  const _getAllTasks = await prisma.tasks.findMany({
     orderBy: [
       {
         completed: "asc",
@@ -48,12 +50,12 @@ export async function GetTasks() {
 export async function AddTask(AddTask: Task) {
   const { concept, amount, debit, img, notes, initAt } = AddTask;
   try {
-    const _newTask = await prisma.Tasks.create({
+    const _newTask = await prisma.tasks.create({
       data: {
         concept,
         amount,
         debit,
-        img,
+        img: img?.toString() || "",
         notes,
         source: "form-task",
         initAt,
@@ -76,14 +78,14 @@ export async function UpdateTask(updateTask: Task) {
   console.log("UpdateTask", updateTask);
   const { id, completed } = updateTask;
   if (!id) return;
-  const existingTask = await prisma.Tasks.findFirst({
+  const existingTask = await prisma.tasks.findFirst({
     where: {
       id: id,
     },
   });
   if (!existingTask) return;
 
-  await prisma.Tasks.update({
+  await prisma.tasks.update({
     where: {
       id: id,
     },
@@ -98,7 +100,7 @@ export async function UpdateTask(updateTask: Task) {
 export async function DeleteTask(deleteTask: Task) {
   const { id, concept } = deleteTask;
   if (!id && !concept) return { status: 400, error: "Invalid request" };
-  const existingTask = await prisma.Tasks.findFirst({
+  const existingTask = await prisma.tasks.findFirst({
     where: {
       concept: deleteTask.concept,
     },
@@ -107,7 +109,7 @@ export async function DeleteTask(deleteTask: Task) {
     return { status: 404, error: "no deleted" };
   }
 
-  await prisma.Tasks.delete({
+  await prisma.tasks.delete({
     where: {
       id: existingTask.id,
     },
