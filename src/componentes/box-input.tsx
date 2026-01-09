@@ -1,16 +1,18 @@
 'use client'
+
 import {
 	AddImage,
 	AddTask,
-	GetTasks,
 	DeleteTask,
+	GetTasks,
 } from '../app/server/actions.ts'
-import ListTasks from './list-tasks.tsx'
-import CardTasks from './card-tasks.tsx'
+import { useEffect, useState } from 'react'
+
 import BoxWord from './box-word.tsx'
+import CardTasks from './card-tasks.tsx'
+import ListTasks from './list-tasks.tsx'
 import { useDebounce } from '../services/hooks.ts'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
 
 const FormattedDate = () => {
 	const date = new Date(Date.now())
@@ -79,11 +81,12 @@ export default function BoxInput() {
 		if (handleInputChange.includes(':')) {
 			const partTask = newTask.split(':')
 
-			if (partTask[1] === 'del') {
-				const isDeleted = await DeleteTask(partTask[0])
-				if (isDeleted?.message == 'task deleted') {
-					router.push('/')
-					setIsDeleted(true)
+			if ( partTask[ 1 ] === 'del' ) {
+				const taskToDelete = { id: parseInt( partTask[ 0 ] ) }  // Convert string to number for ID
+				const isDeleted = await DeleteTask( taskToDelete )
+				if ( isDeleted?.message === 'task deleted' ) {
+					router.push( '/' )
+					setIsDeleted( true )
 					return
 				}
 				return
@@ -131,8 +134,7 @@ export default function BoxInput() {
 	}
 
 	//* Select between Card and List
-	const handleIsList = (evt: React.FormEvent<HTMLFormElement>) => {
-		evt.preventDefault()
+	const handleIsList = () => {
 		setIsList(!isList)
 		return
 	}
@@ -178,7 +180,7 @@ export default function BoxInput() {
 						id='isList'
 						aria-label='Toggle view between List and Cards'
 						value={isList ? 'List' : 'Cards'}
-						onClick={(evt) => handleIsList(evt)}
+						onClick={ () => handleIsList() }
 					/>
 				</section>
 				<BoxWord Phrase={Phrase} />
